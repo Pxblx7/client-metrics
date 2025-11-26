@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard de Proyectos Ze-commerce</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              background: "hsl(var(--background))",
+              foreground: "hsl(var(--foreground))",
+              card: "hsl(var(--card))",
+              "card-foreground": "hsl(var(--card-foreground))",
+              muted: "hsl(var(--muted))",
+              "muted-foreground": "hsl(var(--muted-foreground))",
+              border: "hsl(var(--border))",
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      /* Variables EXACTAS del diseño original */
+      :root {
+        /* Dark Theme (Default) */
+        --background: 222.2 84% 4.9%;
+        --foreground: 210 40% 98%;
+        /* Card matches background for transparent look */
+        --card: 222.2 84% 4.9%; 
+        --card-foreground: 210 40% 98%;
+        --muted: 217.2 32.6% 17.5%;
+        --muted-foreground: 215 20.2% 65.1%;
+        --border: 217.2 32.6% 17.5%;
+      }
+      .light {
+        /* Light Theme */
+        /* Adjusted Background to be light gray so white cards pop */
+        --background: 210 40% 96.1%; 
+        --foreground: 222.2 84% 4.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 222.2 84% 4.9%;
+        --muted: 210 40% 90%; 
+        --muted-foreground: 215.4 16.3% 46.9%;
+        --border: 214.3 31.8% 88%;
+      }
+      
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      /* Custom Scrollbar */
+      .custom-scrollbar::-webkit-scrollbar { height: 8px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: hsl(var(--muted)); border-radius: 4px; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+      /* Sticky header adjustment for React portal mounting if needed */
+      #main-sticky-header { top: -1rem; } 
+      @media (min-width: 640px) { #main-sticky-header { top: -1.5rem; } } 
+      @media (min-width: 768px) { #main-sticky-header { top: -2rem; } }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script type="importmap">
+    {
+      "imports": {
+        "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+        "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
+        "react/": "https://aistudiocdn.com/react@^19.2.0/",
+        "react": "https://aistudiocdn.com/react@^19.2.0"
+      }
+    }
+    </script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
