@@ -10,7 +10,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Babel para compilar TSX/JSX en el navegador (necesario si no hay proceso de build) -->
+    <!-- Babel para compilar TSX en el navegador -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <script>
@@ -55,23 +55,29 @@
         font-family: 'Inter', sans-serif;
         background-color: hsl(var(--background));
         color: hsl(var(--foreground));
-        transition: background-color 0.3s, color 0.3s;
+        margin: 0;
       }
 
-      .custom-scrollbar::-webkit-scrollbar { height: 8px; }
-      .custom-scrollbar::-webkit-scrollbar-track { background: hsl(var(--muted)); border-radius: 4px; }
-      .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-      .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
+      #root:empty::after {
+        content: "Cargando Dashboard...";
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        color: #64748b;
+        font-size: 1.2rem;
+      }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Import Map CORREGIDO: Usamos versiones específicas de esm.sh -->
     <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@19.0.0",
-    "react-dom": "https://esm.sh/react-dom@19.0.0",
-    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
-    "lucide-react": "https://esm.sh/lucide-react@0.454.0",
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom": "https://esm.sh/react-dom@18.2.0",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "lucide-react": "https://esm.sh/lucide-react@0.454.0?external=react",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
     "react/": "https://esm.sh/react@^19.2.3/"
   }
@@ -80,7 +86,17 @@
 </head>
   <body>
     <div id="root"></div>
-    <!-- Cargamos el punto de entrada como módulo y le decimos a Babel que lo procese -->
-    <script type="text/babel" data-type="module" src="index.tsx"></script>
+    
+    <!-- Configuración de Babel para que no intente procesar los imports como archivos locales -->
+    <script type="text/babel" data-type="module" data-presets="react">
+      import React from 'react';
+      import { createRoot } from 'react-dom/client';
+      // Importación dinámica para evitar problemas de resolución de Babel al inicio
+      import App from './App.tsx';
+
+      const container = document.getElementById('root');
+      const root = createRoot(container);
+      root.render(<App />);
+    </script>
   </body>
 </html>

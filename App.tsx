@@ -1,13 +1,14 @@
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Sun, Moon, ExternalLink, CircleAlert, RefreshCw 
 } from 'lucide-react';
 
-import { INITIAL_DATA, KPI_COLORS, API_URL } from './constants';
-import { KPIData, KPIItem, ViewMode } from './types';
-import KpiCard from './components/KpiCard';
-import RoadmapView from './components/RoadmapView';
-import ProjectModal from './components/ProjectModal';
+import { INITIAL_DATA, KPI_COLORS, API_URL } from './constants.ts';
+import { KPIData, KPIItem, ViewMode } from './types.ts';
+import KpiCard from './components/KpiCard.tsx';
+import RoadmapView from './components/RoadmapView.tsx';
+import ProjectModal from './components/ProjectModal.tsx';
 
 function App() {
   const [isDark, setIsDark] = useState(true);
@@ -17,7 +18,6 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [selectedKpi, setSelectedKpi] = useState<KPIItem | null>(null);
 
-  // Initialize Theme
   useEffect(() => {
     const html = document.documentElement;
     if (isDark) {
@@ -29,12 +29,10 @@ function App() {
     }
   }, [isDark]);
 
-  // JSONP Fetching Logic
   const fetchData = useCallback(() => {
     setIsLoading(true);
     setError(null);
 
-    // 1. Define global callback
     window.loadDashboardData = (response: any) => {
       if (response && !response.error) {
         setData(response);
@@ -44,11 +42,10 @@ function App() {
       setIsLoading(false);
     };
 
-    // 2. Create Script Tag
     const script = document.createElement('script');
     const url = new URL(API_URL);
     url.searchParams.set('callback', 'loadDashboardData');
-    url.searchParams.set('ts', new Date().getTime().toString()); // Cache buster
+    url.searchParams.set('ts', new Date().getTime().toString());
 
     script.src = url.toString();
     script.onerror = () => {
@@ -56,10 +53,7 @@ function App() {
         setIsLoading(false);
     };
 
-    // 3. Append to body
     document.body.appendChild(script);
-
-    // Cleanup: Remove script tag after load (optional but cleaner)
     return () => {
         if(document.body.contains(script)) {
             document.body.removeChild(script);
@@ -67,14 +61,11 @@ function App() {
     }
   }, []);
 
-  // Fetch on mount
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  // Map Global KPIs to Colors consistently
   const kpiColorMap = useMemo(() => {
-    // Explicitly type uniqueKpis as string[] to avoid 'unknown' type inference issues
     const uniqueKpis: string[] = Array.from(new Set(data.kpis.map(k => k.kpi_global)));
     const map: Record<string, number> = {};
     uniqueKpis.forEach((k, i) => {
@@ -90,8 +81,6 @@ function App() {
 
   return (
     <div className="p-4 sm:p-6 md:p-8 max-w-[1600px] mx-auto font-sans transition-colors duration-300">
-      
-      {/* Header */}
       <div className="sticky top-[-1rem] sm:top-[-1.5rem] md:top-[-2rem] z-30 bg-background pt-4 sm:pt-6 md:pt-8 pb-4 transition-colors duration-300 border-b border-transparent">
         <header className="mb-6 flex justify-between items-end">
           <div>
@@ -102,8 +91,6 @@ function App() {
               <p className="text-lg text-muted-foreground">
                 Seguimiento de KPIs y entregables.
               </p>
-              
-              {/* Status Chip / Refresh Button - LARGER SIZE */}
               <button 
                 onClick={fetchData}
                 disabled={isLoading}
@@ -134,15 +121,13 @@ function App() {
           <button 
             onClick={() => setIsDark(!isDark)}
             className="p-2.5 rounded-lg border border-border text-muted-foreground hover:bg-muted hover:text-foreground transition-colors focus:outline-none"
-            aria-label="Toggle theme"
           >
             {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
         </header>
 
-        {/* Tabs */}
         <div className="border-b border-border">
-            <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+            <nav className="-mb-px flex space-x-8">
                 <button
                     onClick={() => setView('roadmap')}
                     className={`pb-3 px-1 border-b-2 font-semibold text-sm transition-all duration-200 ${
@@ -168,8 +153,6 @@ function App() {
       </div>
 
       <main className="mt-6">
-        
-        {/* Error Alert */}
         {error && (
              <div className="mb-6 bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg flex items-center gap-3 shadow-sm">
                 <CircleAlert className="w-5 h-5" />
@@ -180,7 +163,6 @@ function App() {
              </div>
         )}
 
-        {/* Loading State (Initial) */}
         {isLoading && data.kpis.length === 0 && (
             <div className="flex flex-col items-center justify-center h-64 text-muted-foreground space-y-3">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-current"></div>
@@ -188,64 +170,34 @@ function App() {
             </div>
         )}
 
-        {/* View Content */}
         {(!isLoading || data.kpis.length > 0) && (
             view === 'roadmap' ? (
-              <div className="animate-in fade-in duration-300">
-                 <RoadmapView 
-                    kpis={data.kpis} 
-                    getColor={getColor} 
-                    onProjectClick={setSelectedKpi}
-                  />
-              </div>
+              <RoadmapView 
+                kpis={data.kpis} 
+                getColor={getColor} 
+                onProjectClick={setSelectedKpi}
+              />
             ) : (
               <div className="animate-in fade-in duration-300">
-                 <div className="mb-8 flex justify-end">
-                    <a 
-                      href="https://docs.google.com/spreadsheets/d/1lDevcsKJ8EiPH-rxBE0MnrtxTAUIVjF7ZLdXffKji_0/edit?usp=sharing" 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="inline-flex items-center justify-center rounded-lg text-xs font-semibold transition-colors bg-emerald-600 text-white hover:bg-emerald-700 h-8 px-3 shadow-sm hover:shadow uppercase tracking-wide gap-2"
-                    >
+                <div className="mb-8 flex justify-end">
+                    <a href="https://docs.google.com/spreadsheets/d/1lDevcsKJ8EiPH-rxBE0MnrtxTAUIVjF7ZLdXffKji_0/edit?usp=sharing" target="_blank" className="inline-flex items-center justify-center rounded-lg text-xs font-semibold transition-colors bg-emerald-600 text-white hover:bg-emerald-700 h-8 px-3 gap-2">
                         <ExternalLink className="w-3.5 h-3.5" />
                         Ver Base de Datos
                     </a>
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {data.kpis.map((kpi) => (
                     <div key={kpi.id} onClick={() => setSelectedKpi(kpi)} className="cursor-pointer">
-                        <KpiCard 
-                          kpi={kpi} 
-                          themeColor={getColor(kpi.kpi_global)} 
-                          isDark={isDark} 
-                        />
+                        <KpiCard kpi={kpi} themeColor={getColor(kpi.kpi_global)} isDark={isDark} />
                     </div>
                   ))}
-                </div>
-
-                <div className="mt-12 pt-6 border-t border-border text-muted-foreground text-xs leading-relaxed">
-                    <h4 className="font-bold text-foreground mb-2 uppercase tracking-wider text-[10px]">
-                        Notas Importantes:
-                    </h4>
-                    <ul className="list-disc list-inside space-y-1 ml-1 opacity-80">
-                        <li>Las etiquetas de colores corresponden a los <strong>KPIs Globales</strong> asignados.</li>
-                        <li>Los proyectos de Pagespeed se despriorizan temporalmente en favor de las mejoras de SEO.</li>
-                        <li>Los Sub-KPIs de '% de errores' y 'tiempos de checkout' serán integrados con el proyecto OZ.</li>
-                    </ul>
                 </div>
               </div>
             )
         )}
       </main>
 
-      {/* Modal */}
-      <ProjectModal 
-        isOpen={!!selectedKpi} 
-        onClose={() => setSelectedKpi(null)} 
-        kpi={selectedKpi} 
-      />
-      
+      <ProjectModal isOpen={!!selectedKpi} onClose={() => setSelectedKpi(null)} kpi={selectedKpi} />
     </div>
   );
 }
