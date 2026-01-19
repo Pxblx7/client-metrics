@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es" class="dark">
   <head>
@@ -5,7 +6,13 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard de Proyectos Ze-commerce</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Babel para compilar TSX/JSX en el navegador (necesario si no hay proceso de build) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
     <script>
       tailwind.config = {
         darkMode: 'class',
@@ -25,12 +32,9 @@
       }
     </script>
     <style>
-      /* Variables EXACTAS del diseño original */
       :root {
-        /* Dark Theme (Default) */
         --background: 222.2 84% 4.9%;
         --foreground: 210 40% 98%;
-        /* Card matches background for transparent look */
         --card: 222.2 84% 4.9%; 
         --card-foreground: 210 40% 98%;
         --muted: 217.2 32.6% 17.5%;
@@ -38,8 +42,6 @@
         --border: 217.2 32.6% 17.5%;
       }
       .light {
-        /* Light Theme */
-        /* Adjusted Background to be light gray so white cards pop */
         --background: 210 40% 96.1%; 
         --foreground: 222.2 84% 4.9%;
         --card: 0 0% 100%;
@@ -56,30 +58,29 @@
         transition: background-color 0.3s, color 0.3s;
       }
 
-      /* Custom Scrollbar */
       .custom-scrollbar::-webkit-scrollbar { height: 8px; }
       .custom-scrollbar::-webkit-scrollbar-track { background: hsl(var(--muted)); border-radius: 4px; }
       .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
       .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
-
-      /* Sticky header adjustment for React portal mounting if needed */
-      #main-sticky-header { top: -1rem; } 
-      @media (min-width: 640px) { #main-sticky-header { top: -1.5rem; } } 
-      @media (min-width: 768px) { #main-sticky-header { top: -2rem; } }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <script type="importmap">
-    {
-      "imports": {
-        "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-        "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
-        "react/": "https://aistudiocdn.com/react@^19.2.0/",
-        "react": "https://aistudiocdn.com/react@^19.2.0"
-      }
-    }
-    </script>
+{
+  "imports": {
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "lucide-react": "https://esm.sh/lucide-react@0.454.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/"
+  }
+}
+</script>
 </head>
   <body>
     <div id="root"></div>
+    <!-- Cargamos el punto de entrada como módulo y le decimos a Babel que lo procese -->
+    <script type="text/babel" data-type="module" src="index.tsx"></script>
   </body>
 </html>
