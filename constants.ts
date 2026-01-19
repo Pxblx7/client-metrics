@@ -1,14 +1,15 @@
+
 import { KPIData, ColorPalette } from './types';
 
-// Google Apps Script URL
-export const API_URL = "https://script.google.com/macros/s/AKfycbwNdvgE2UnLAbxTB-UHr9OKb5KzY8xMBhizU0AFNQT1WwDfSxyXS1EthDKyMr6iNaq2/exec";
+// Google Apps Script URL - Versión 4.0 con calculated_level
+export const API_URL = "https://script.google.com/macros/s/AKfycbxN_5l9LqAJyav75tGo5fMOd1PikUi7lqumb78TvQFB9eJ_PIANkKKzscBcmTPGFg1x/exec";
 
 // Initial Fallback Data
 export const INITIAL_DATA: KPIData = {
   "metadata": {
     "generated_at": new Date().toISOString(),
     "count": 0,
-    "version": "3.0.0"
+    "version": "4.0.0"
   },
   "kpis": []
 };

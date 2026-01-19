@@ -22,6 +22,7 @@ export interface KPIItem {
   area: string;
   stakeholder: string;
   niveles: Niveles;
+  calculated_level?: number; // New field from backend v4.0
 }
 
 export interface KPIData {

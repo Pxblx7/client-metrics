@@ -27,9 +27,7 @@ export const formatValue = (val: string | number, kpi: KPIItem): string | number
   const context = (kpi.sub_kpi + kpi.formula + kpi.kpi_global).toLowerCase();
   const isPercentage = context.includes('porcentaje') || context.includes('tasa') || context.includes('%') || context.includes('rate');
   
-  // Refined Logic: 
-  // Only treat as percentage if it looks like a decimal ratio (0 <= x <= 1) AND is NOT an integer.
-  // This prevents inputs like "1" (meaning 1 issue) from becoming "100%" just because formula mentions %.
+  // Logic: treat as % only if it's a decimal <= 1 (e.g. 0.99)
   if (isPercentage && Math.abs(num) <= 1 && num !== 0 && !Number.isInteger(num)) {
       return Math.round(num * 100) + '%';
   }
@@ -38,13 +36,35 @@ export const formatValue = (val: string | number, kpi: KPIItem): string | number
   return val;
 };
 
+/**
+ * Robustly cleans a value string to extract the number.
+ */
+const cleanAndParse = (val: string | number): number => {
+  if (val === null || val === undefined) return NaN;
+  if (typeof val === 'number') return val;
+  // Remove everything that isn't a digit, a dot, or a minus sign
+  const cleaned = String(val).replace(/[^0-9.-]/g, '');
+  return parseFloat(cleaned);
+};
+
 export const calculateNivel = (kpi: KPIItem): { nivel: number; texto: string } => {
+  // 1. PREFER BACKEND CALCULATION (If available)
+  // This ensures the robust Google Apps Script logic is the source of truth
+  if (typeof kpi.calculated_level === 'number') {
+    const lvl = kpi.calculated_level;
+    const txt = lvl > 0 ? `Nivel ${lvl}` : (kpi.tipo_target === 'Binario' ? 'Pendiente' : 'Fuera de rango');
+    // Special text override for binary completed
+    if (kpi.tipo_target === 'Binario' && lvl === 3) return { nivel: 3, texto: "Completado" };
+    return { nivel: lvl, texto: txt };
+  }
+
+  // 2. FALLBACK FRONTEND LOGIC (Legacy support)
   if (kpi.tipo_target === 'Binario') {
     if (kpi.logro_val === 'Liberado') return { nivel: 3, texto: "Completado" };
     return { nivel: 1, texto: "Pendiente" };
   }
   
-  let logro = parseFloat(String(kpi.logro_val));
+  let logro = cleanAndParse(kpi.logro_val);
   if (isNaN(logro) && kpi.logro_val !== 0 && kpi.logro_val !== '0') return { nivel: 0, texto: "N/A" };
 
   const niveles: Record<number, number> = {};
@@ -52,7 +72,7 @@ export const calculateNivel = (kpi: KPIItem): { nivel: number; texto: string } =
   
   for (let i = 1; i <= 5; i++) {
     const key = `n${i}` as keyof Niveles;
-    let val = parseFloat(String(kpi.niveles[key]));
+    let val = cleanAndParse(kpi.niveles[key]);
     if (!isNaN(val)) { 
       niveles[i] = val; 
       validKeys.push(i); 
@@ -61,9 +81,19 @@ export const calculateNivel = (kpi: KPIItem): { nivel: number; texto: string } =
   
   if (validKeys.length < 2) return { nivel: 0, texto: "N/A" };
 
+  // --- Normalization Fix for Frontend Fallback ---
+  // If we have mixed 0.99 and 95, scale the small ones.
+  const allValues = [logro, ...Object.values(niveles)];
+  const maxVal = Math.max(...allValues);
+  
+  const normalize = (v: number) => (maxVal > 5 && v <= 1 && v >= -1) ? v * 100 : v;
+  
+  logro = normalize(logro);
+  validKeys.forEach(key => { niveles[key] = normalize(niveles[key]); });
+
   const first = niveles[validKeys[0]];
   const last = niveles[validKeys[validKeys.length - 1]];
-  const higherIsBetter = last > first; 
+  const higherIsBetter = last >= first; 
   let currentNivel = 0;
 
   if (higherIsBetter) {
@@ -78,14 +108,5 @@ export const calculateNivel = (kpi: KPIItem): { nivel: number; texto: string } =
     }
   }
   
-  // Logic Fix: If strictly worse than N1, return 0 (inactive), do NOT default to N1.
-  if (currentNivel === 0) {
-     if (higherIsBetter && logro < first) return { nivel: 0, texto: "Fuera de rango" };
-     if (!higherIsBetter && logro > first) return { nivel: 0, texto: "Fuera de rango" };
-     
-     // If it's 0 and logic didn't catch it, return 0.
-     return { nivel: 0, texto: "Fuera de rango" };
-  }
-
   return { nivel: currentNivel, texto: currentNivel > 0 ? `Nivel ${currentNivel}` : "Fuera de rango" };
 };

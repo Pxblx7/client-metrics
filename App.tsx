@@ -74,7 +74,8 @@ function App() {
 
   // Map Global KPIs to Colors consistently
   const kpiColorMap = useMemo(() => {
-    const uniqueKpis = Array.from(new Set(data.kpis.map(k => k.kpi_global)));
+    // Explicitly type uniqueKpis as string[] to avoid 'unknown' type inference issues
+    const uniqueKpis: string[] = Array.from(new Set(data.kpis.map(k => k.kpi_global)));
     const map: Record<string, number> = {};
     uniqueKpis.forEach((k, i) => {
       map[k] = i % KPI_COLORS.length;
@@ -102,29 +103,29 @@ function App() {
                 Seguimiento de KPIs y entregables.
               </p>
               
-              {/* Status Chip / Refresh Button */}
+              {/* Status Chip / Refresh Button - LARGER SIZE */}
               <button 
                 onClick={fetchData}
                 disabled={isLoading}
-                className={`flex items-center gap-2 px-3 py-1 rounded-full border transition-all ${
+                className={`flex items-center gap-3 px-4 py-2 rounded-full border transition-all ${
                     isLoading 
                     ? 'bg-amber-500/10 border-amber-500/30 cursor-wait' 
                     : 'bg-muted/50 border-border hover:bg-muted cursor-pointer'
                 }`}
               >
-                <span className="relative flex h-2 w-2">
+                <span className="relative flex h-3 w-3">
                   {isLoading ? (
-                     <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                     <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
                   ) : (
                     <>
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
                     </>
                   )}
                 </span>
-                <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                <p className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                   {isLoading ? 'Sincronizando...' : `Actualizado: ${new Date(data.metadata.generated_at).toLocaleDateString()}`}
-                  {!isLoading && <RefreshCw className="w-3 h-3 ml-1 opacity-50" />}
+                  {!isLoading && <RefreshCw className="w-4 h-4 ml-1 opacity-50" />}
                 </p>
               </button>
             </div>
